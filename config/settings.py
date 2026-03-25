@@ -7,7 +7,6 @@ from dataclasses import dataclass
 
 from dotenv import load_dotenv
 
-
 load_dotenv()
 
 
@@ -16,7 +15,7 @@ class Settings:
     """Runtime settings for the betting pipeline."""
 
     odds_api_key: str
-    sport_key: str = "icehockey_nhl"
+    sport_key: str = "basketball_nba"
     regions: str = "us"
     bookmakers: str = "draftkings,fanduel,betmgm"
     odds_markets: str = "h2h"
@@ -26,12 +25,11 @@ class Settings:
     history_days: int = 120
     elo_base: float = 1500.0
     elo_k_factor: float = 20.0
-    home_ice_advantage: float = 45.0
-    recent_form_games: int = 5
+    home_court_advantage: float = 55.0
+    recent_form_games: int = 8
     request_timeout_seconds: int = 20
     log_level: str = "INFO"
     output_dir: str = "outputs"
-
 
 
 def load_settings() -> Settings:
@@ -43,7 +41,7 @@ def load_settings() -> Settings:
 
     return Settings(
         odds_api_key=api_key,
-        sport_key=os.getenv("SPORT_KEY", "icehockey_nhl"),
+        sport_key=os.getenv("SPORT_KEY", "basketball_nba"),
         regions=os.getenv("REGIONS", "us"),
         bookmakers=os.getenv("BOOKMAKERS", "draftkings,fanduel,betmgm"),
         odds_markets=os.getenv("ODDS_MARKETS", "h2h"),
@@ -53,8 +51,8 @@ def load_settings() -> Settings:
         history_days=int(os.getenv("HISTORY_DAYS", "120")),
         elo_base=float(os.getenv("ELO_BASE", "1500")),
         elo_k_factor=float(os.getenv("ELO_K_FACTOR", "20")),
-        home_ice_advantage=float(os.getenv("HOME_ICE_ADVANTAGE", "45")),
-        recent_form_games=int(os.getenv("RECENT_FORM_GAMES", "5")),
+        home_court_advantage=float(os.getenv("HOME_COURT_ADVANTAGE", "55")),
+        recent_form_games=int(os.getenv("RECENT_FORM_GAMES", "8")),
         request_timeout_seconds=int(os.getenv("REQUEST_TIMEOUT_SECONDS", "20")),
         log_level=os.getenv("LOG_LEVEL", "INFO"),
         output_dir=os.getenv("OUTPUT_DIR", "outputs"),

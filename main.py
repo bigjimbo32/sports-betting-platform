@@ -1,4 +1,4 @@
-"""Main entrypoint for Phase 1 NHL moneyline +EV engine."""
+"""Main entrypoint for Phase 1 NBA moneyline +EV engine."""
 
 from __future__ import annotations
 
@@ -9,10 +9,10 @@ import pandas as pd
 
 from config.settings import load_settings
 from src.betting.recommender import BetRecommender
-from src.collectors.nhl_stats import NHLStatsCollector
+from src.collectors.nba_stats import NBAStatsCollector
 from src.collectors.odds_api import OddsAPICollector
-from src.features.nhl_features import NHLFeatureBuilder
-from src.models.nhl_moneyline_model import NHLMoneylineModel
+from src.features.nba_features import NBAFeatureBuilder
+from src.models.nba_moneyline_model import NBAMoneylineModel
 from src.utils.io import utc_now_str, write_csv
 from src.utils.logger import configure_logging
 
@@ -84,7 +84,7 @@ def run() -> None:
     LOGGER.info("Starting sports betting pipeline for sport=%s", settings.sport_key)
 
     odds_collector = OddsAPICollector(settings.odds_api_key, timeout=settings.request_timeout_seconds)
-    stats_collector = NHLStatsCollector(timeout=settings.request_timeout_seconds)
+    stats_collector = NBAStatsCollector(timeout=settings.request_timeout_seconds)
 
     events = odds_collector.fetch_h2h_odds(
         sport_key=settings.sport_key,
@@ -102,16 +102,16 @@ def run() -> None:
 
     history_df = stats_collector.fetch_recent_history(settings.history_days)
 
-    feature_builder = NHLFeatureBuilder(
+    feature_builder = NBAFeatureBuilder(
         elo_base=settings.elo_base,
         elo_k_factor=settings.elo_k_factor,
-        home_ice_advantage=settings.home_ice_advantage,
+        home_court_advantage=settings.home_court_advantage,
         recent_form_games=settings.recent_form_games,
     )
     team_states = feature_builder.build_team_states(history_df)
     features_df = feature_builder.features_for_matchups(odds_df, team_states)
 
-    model = NHLMoneylineModel(home_ice_advantage=settings.home_ice_advantage)
+    model = NBAMoneylineModel(home_court_advantage=settings.home_court_advantage)
     predictions_df = model.predict_home_win_probability(features_df)
 
     recommender = BetRecommender(edge_threshold=settings.edge_threshold)
